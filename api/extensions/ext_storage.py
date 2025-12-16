@@ -27,7 +27,7 @@ class Storage:
                 return AwsS3Storage
             case StorageType.OPENDAL:
                 from extensions.storage.opendal_storage import OpenDALStorage
-
+                print(dify_config)
                 return lambda: OpenDALStorage(dify_config.OPENDAL_SCHEME)
             case StorageType.LOCAL:
                 from extensions.storage.opendal_storage import OpenDALStorage
