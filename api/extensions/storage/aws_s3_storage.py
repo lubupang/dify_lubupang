@@ -58,7 +58,14 @@ class AwsS3Storage(BaseStorage):
     def load_once(self, filename: str) -> bytes:
         try:
             logger.info(f"Loading file {filename} from S3 bucket {self.bucket_name}")
-            data: bytes = self.client.get_object(Bucket=self.bucket_name, Key=filename)["Body"].read()
+            try:
+                data: bytes = self.client.get_object(Bucket=self.bucket_name, Key=filename)["Body"].read()
+            except ClientError as ex:
+                if ex.response.get("Error", {}).get("Code") == "NoSuchKey":
+                    logger.error(f"File {filename} not found in S3 bucket {self.bucket_name}")
+                    raise 
+                else:
+                    raise
             logger.info(f"File {filename} loaded from S3 bucket {self.bucket_name}")
         except ClientError as ex:
             if ex.response.get("Error", {}).get("Code") == "NoSuchKey":
