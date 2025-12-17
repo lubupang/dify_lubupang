@@ -35,11 +35,15 @@ class AwsS3Storage(BaseStorage):
                 region_name=dify_config.S3_REGION,
                 config=Config(s3={"addressing_style": dify_config.S3_ADDRESS_STYLE or 'path'}),
             )
+            logger.info(f"Using S3 secret key: {dify_config.S3_SECRET_KEY}")
+            logger.info(f"Using S3 access key: {dify_config.S3_ACCESS_KEY}")
             logger.info(f"Using S3 address style: {dify_config.S3_ADDRESS_STYLE}")
             logger.info(f"Using S3 endpoint: {dify_config.S3_ENDPOINT}")
         # create bucket
         try:
+            logger.info(f"Checking bucket {self.bucket_name} exists")
             self.client.head_bucket(Bucket=self.bucket_name)
+            logger.info(f"Bucket {self.bucket_name} exists")
         except ClientError as e:
             # if bucket not exists, create it
             if e.response.get("Error", {}).get("Code") == "404":
