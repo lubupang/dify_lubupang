@@ -32,7 +32,7 @@ class AwsS3Storage(BaseStorage):
                 aws_access_key_id=dify_config.S3_ACCESS_KEY,
                 endpoint_url=dify_config.S3_ENDPOINT,
                 region_name=dify_config.S3_REGION,
-                config=Config(s3={"addressing_style": dify_config.S3_ADDRESS_STYLE}),
+                config=Config(s3={"addressing_style": dify_config.S3_ADDRESS_STYLE or 'path'}),
             )
             logger.info(f"Using S3 address style: {dify_config.S3_ADDRESS_STYLE}")
             logger.info(f"Using S3 endpoint: {dify_config.S3_ENDPOINT}")
@@ -51,11 +51,15 @@ class AwsS3Storage(BaseStorage):
                 raise
 
     def save(self, filename, data):
+        logger.info(f"Uploading file {filename} to S3 bucket {self.bucket_name}")
         self.client.put_object(Bucket=self.bucket_name, Key=filename, Body=data)
+        logger.info(f"File {filename} uploaded to S3 bucket {self.bucket_name}")
 
     def load_once(self, filename: str) -> bytes:
         try:
+            logger.info(f"Loading file {filename} from S3 bucket {self.bucket_name}")
             data: bytes = self.client.get_object(Bucket=self.bucket_name, Key=filename)["Body"].read()
+            logger.info(f"File {filename} loaded from S3 bucket {self.bucket_name}")
         except ClientError as ex:
             if ex.response.get("Error", {}).get("Code") == "NoSuchKey":
                 raise FileNotFoundError("File not found")
