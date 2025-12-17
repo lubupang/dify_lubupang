@@ -34,6 +34,8 @@ class AwsS3Storage(BaseStorage):
                 region_name=dify_config.S3_REGION,
                 config=Config(s3={"addressing_style": dify_config.S3_ADDRESS_STYLE}),
             )
+            logger.info(f"Using S3 address style: {dify_config.S3_ADDRESS_STYLE}")
+            logger.info(f"Using S3 endpoint: {dify_config.S3_ENDPOINT}")
         # create bucket
         try:
             self.client.head_bucket(Bucket=self.bucket_name)
