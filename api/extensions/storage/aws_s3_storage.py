@@ -53,6 +53,7 @@ class AwsS3Storage(BaseStorage):
 
     def save(self, filename, data):
         logger.info(f"Uploading file {filename} to S3 bucket {self.bucket_name}")
+        logger.info(f"{data=}")
         try:
             self.client.put_object(Bucket=self.bucket_name, Key=filename, Body=data)
         except ClientError as ex:
