@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Generator
+import os
 
 import boto3
 from botocore.client import Config
@@ -52,7 +53,11 @@ class AwsS3Storage(BaseStorage):
 
     def save(self, filename, data):
         logger.info(f"Uploading file {filename} to S3 bucket {self.bucket_name}")
-        self.client.put_object(Bucket=self.bucket_name, Key=filename, Body=data)
+        try:
+            self.client.put_object(Bucket=self.bucket_name, Key=filename, Body=data)
+        except ClientError as ex:
+            logger.error(f"Bucket {self.bucket_name} can not upload file {filename},{os.path.abspath(filename)},{os.path.exists(os.path.abspath(filename))}")
+
         logger.info(f"File {filename} uploaded to S3 bucket {self.bucket_name}")
 
     def load_once(self, filename: str) -> bytes:
